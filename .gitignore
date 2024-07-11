@@ -1,5 +1,7 @@
 *.js
 !jest.config.js
+!lib/private_key_lambda.js
+!lib/dynamo_resource_lambda.js
 *.d.ts
 node_modules
 

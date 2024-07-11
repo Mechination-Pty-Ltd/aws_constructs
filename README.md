@@ -2,7 +2,6 @@
 
 Shared AWS CDK Constructs used by Mechination
 
+## GitHubRole
 
-
-## Cloudfront-Website
-This is used to publish a cloudfront distribution that hosts a static website, but the S3 bucket is in a region of your chosing. The region of the S3 bucket is important because it influences the latency of fetches when there is a cache-miss from cloudfront.
+This is a specialised role that cna be deployed to an account (along with an IdentityProvider) to allow Github actions acces to the account to run commands.
