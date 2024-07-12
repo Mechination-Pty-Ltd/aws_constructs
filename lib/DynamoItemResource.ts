@@ -1,25 +1,21 @@
-import { marshall } from "@aws-sdk/util-dynamodb";
 import { CustomResource, Duration, Stack } from "aws-cdk-lib";
-import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Architecture, Runtime, Code, Function, CfnFunction } from "aws-cdk-lib/aws-lambda";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { AwsCustomResource, AwsCustomResourcePolicy, AwsSdkCall, PhysicalResourceId, Provider } from "aws-cdk-lib/custom-resources";
+import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import { createHash } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { PrivateKeyResource } from "./PrivateKeySecret";
 
 export interface DynamoItemResourceProps {
-  table: Table;
+  table: ITable;
   key: Record<string, any>;
   item: Record<string, any>;
 }
 
-const hashKey = (key: Record<string, any>) => {
-  createHash("md5").update(JSON.stringify(key)).digest();
-};
-
+/**
+ * Upserts a value into DynamoDB when the stack is deployed.  THis can be used to inject data that is needed for proper operation.
+ */
 export class DynamoItemResource extends Construct {
   private static providerHandler: Function;
   private static provider: Provider;
