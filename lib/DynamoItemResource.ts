@@ -1,7 +1,7 @@
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { CustomResource, Duration } from "aws-cdk-lib";
+import { CustomResource, Duration, Stack } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
-import { Architecture, Runtime, Code, Function } from "aws-cdk-lib/aws-lambda";
+import { Architecture, Runtime, Code, Function, CfnFunction } from "aws-cdk-lib/aws-lambda";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { AwsCustomResource, AwsCustomResourcePolicy, AwsSdkCall, PhysicalResourceId, Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
@@ -28,7 +28,7 @@ export class DynamoItemResource extends Construct {
     super(scope, id);
 
     if (!DynamoItemResource.provider) {
-      DynamoItemResource.providerHandler = new Function(this, "Handler", {
+      DynamoItemResource.providerHandler = new Function(Stack.of(this), "ItemResourceHandler", {
         memorySize: 256,
         architecture: Architecture.ARM_64,
         timeout: Duration.seconds(30),
@@ -38,10 +38,14 @@ export class DynamoItemResource extends Construct {
         code: Code.fromInline(readFileSync(join(__dirname, "dynamo_resource_lambda.js")).toString("utf-8")),
       });
 
-      DynamoItemResource.provider = new Provider(this, "Provider", {
+      DynamoItemResource.provider = new Provider(Stack.of(this), "ItemResourceProvider", {
         onEventHandler: DynamoItemResource.providerHandler,
         logRetention: RetentionDays.THREE_DAYS,
       });
+      // Resource providers don't like changing logical ID, so we pin it to a specific name that hopefully nobody will re-use
+      (DynamoItemResource.provider.node.children[0].node.defaultChild as CfnFunction).overrideLogicalId(
+        "CustomResourceDynamoItemResourceProvider"
+      );
     }
 
     new CustomResource(this, "Resource", {
