@@ -27,7 +27,7 @@ export class DynamoItemResource extends Construct {
       DynamoItemResource.providerHandler = new Function(Stack.of(this), "ItemResourceHandler", {
         memorySize: 256,
         architecture: Architecture.ARM_64,
-        timeout: Duration.seconds(30),
+        timeout: Duration.seconds(5),
         runtime: Runtime.NODEJS_20_X,
         logRetention: RetentionDays.THREE_MONTHS,
         handler: "index.handler",
@@ -36,6 +36,7 @@ export class DynamoItemResource extends Construct {
 
       DynamoItemResource.provider = new Provider(Stack.of(this), "ItemResourceProvider", {
         onEventHandler: DynamoItemResource.providerHandler,
+        totalTimeout: Duration.seconds(20),
         logRetention: RetentionDays.THREE_DAYS,
       });
       // Resource providers don't like changing logical ID, so we pin it to a specific name that hopefully nobody will re-use
