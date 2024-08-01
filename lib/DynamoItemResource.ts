@@ -36,7 +36,6 @@ export class DynamoItemResource extends Construct {
 
       DynamoItemResource.provider = new Provider(Stack.of(this), "ItemResourceProvider", {
         onEventHandler: DynamoItemResource.providerHandler,
-        totalTimeout: Duration.seconds(20),
         logRetention: RetentionDays.THREE_DAYS,
       });
       // Resource providers don't like changing logical ID, so we pin it to a specific name that hopefully nobody will re-use
